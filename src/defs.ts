@@ -1,7 +1,7 @@
-import { Application, Container, ApplicationOptions, Assets, Sprite, Ticker } from "pixi.js";
+import { Application, Container, ApplicationOptions, Assets, Ticker } from "pixi.js";
 
 export class Game extends Application {
-    // currentScene: Scene
+    currentScene: Scene
     
     fixedWidth: number = 640;
     fixedHeight: number = 360;
@@ -45,25 +45,58 @@ export class Game extends Application {
 
     constructor() {
         super();
-        // this.currentScene = new Scene();
+        this.currentScene = new Scene();
     }
 
     async init(options: Partial<ApplicationOptions>) {
         await super.init(options);
     }
 
-    // async switchScene(scene: Scene) {
-    //     // pause current scene ticker
-    //     this.currentScene.ticker.stop();
-    //     // set current scene as not renderable
-    //     this.currentScene.visible = false;
+    async switchScene(scene: Scene) {
+        // pause current scene ticker
+        this.currentScene.ticker.stop();
+        // set current scene as not renderable
+        this.currentScene.visible = false;
 
-    //     // set new current scene
-    //     this.currentScene = scene;
+        // set new current scene
+        this.currentScene = scene;
         
-    //     // start new scene ticker
-    //     scene.ticker.start();
-    //     //  set new scene as renderable
-    //     scene.renderable = true;    
-    // }
+        // start new scene ticker
+        scene.ticker.start();
+        //  set new scene as renderable
+        scene.renderable = true;    
+
+        // render the scene gui
+        document.getElementById('gui')!.innerHTML = scene.gui;
+        scene.guiLogic();
+
+    }
+}
+
+
+export class Scene extends Container {
+    ticker: Ticker
+    assets: any
+    gui: string = ''
+    guiLogic: Function = () => {}
+    // Layers
+    setup: Function = () => {}
+
+    constructor() {
+        super();
+        this.ticker = new Ticker();
+        this.ticker.stop();
+        this.renderable = false;
+    }
+
+    // Reset scene
+    reset = async () => {
+        await this.setup();
+    }
+
+    // Load assets
+    loadAssets = async (bundleName: string) => {
+        // Load assets
+        this.assets = await Assets.loadBundle(bundleName);
+    }
 }

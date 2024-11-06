@@ -1,5 +1,7 @@
 import { TextureStyle, Text } from 'pixi.js';
 import { game } from './init';
+import { fitGameToScreen } from './utils';
+import { menuScene } from './scenes/menu';
 
 await game.init({
     antialias: false,
@@ -14,34 +16,11 @@ await game.init({
 TextureStyle.defaultOptions.scaleMode = 'nearest'
 document.getElementById('game')!.replaceWith(game.canvas);
 
-const fitGameToScreen = () => {
-    let targetWidth = window.innerWidth;
-    let targetHeight = window.innerWidth * 9 / 16;
-
-    if (targetHeight > window.innerHeight) {
-        targetHeight = window.innerHeight;
-        targetWidth = window.innerHeight * 16 / 9;
-    }
-    let targetScaleX = targetWidth / game.fixedWidth;
-    let targetScaleY = targetHeight / game.fixedHeight;
-
-    game.canvas.style.width = `${targetWidth}px`;
-    game.canvas.style.height = `${targetHeight}px`;
-    game.renderer.resize(targetWidth, targetHeight);
-
-    game.stage.scale.x = targetScaleX
-    game.stage.scale.y = targetScaleY
-    
-    let gui = document.getElementById('gui')
-    if (gui) {
-        gui.style.transformOrigin = 'top left';
-        gui.style.transform = `scale(${targetScaleX}, ${targetScaleY})`;
-        gui.style.width = `${game.fixedWidth}px`;
-        gui.style.height = `${game.fixedHeight}px`;
-    }
-}
 window.addEventListener('resize', fitGameToScreen);
 window.addEventListener('load', fitGameToScreen);
+
+game.switchScene(menuScene);
+
 
 const fps = new Text({
     text: '',
@@ -76,10 +55,13 @@ game.stage.on('mousemove', (event) =>
     mouseposition.x = event.global.x / game.stage.scale.x;
     mouseposition.y = event.global.y / game.stage.scale.y;
 });
+pointerText.anchor.set(1);
 
 game.ticker.add( () => {
     pointerText.text = `Pointer: ${Math.round(mouseposition.x)}, ${Math.round(mouseposition.y)}`;
     pointerText.x = mouseposition.x;
     pointerText.y = mouseposition.y;
+
+    // move the pointer 
 })
 
